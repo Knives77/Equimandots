@@ -1,0 +1,25 @@
+# Archivos temporales y de swap de Neovim
+*~
+*.swp
+*.swo
+.netrwhist
+Session.vim
+
+# Archivos de compilación de LaTeX
+# (Ya que configuramos VimTeX para mandar todo a build/)
+build/
+docs/build/
+*.pdf
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.bbl
+*.blg
+
+# Directorios del sistema operativo
+.DS_Store
+Thumbs.db
