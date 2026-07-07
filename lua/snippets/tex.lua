@@ -241,13 +241,34 @@ table.insert(autosnippets, s({
 }, fmta([[\frac{<>}{<>}<>]], { i(1), i(2), i(0) })))
 
 -- Fracción con número: 3/ → \frac{3}{}
+local function fraction_with_number_condition(line_to_cursor)
+  if not in_mathzone() then
+    return false
+  end
+
+  local before_fraction = line_to_cursor:match("^(.*)%d+/$")
+  if not before_fraction then
+    return false
+  end
+
+  if before_fraction:match("%^%s*$") then
+    return false
+  end
+
+  if before_fraction:match("%^%s*[%(%{%[]%s*$") then
+    return false
+  end
+
+  return true
+end
+
 table.insert(autosnippets, s({
   trig = "(%d+)/",
   regTrig = true,
   wordTrig = false,
   name = "Fraction with number",
   dscr = "3/ → \\frac{3}{}",
-  condition = in_mathzone,
+  condition = fraction_with_number_condition,
   show_condition = in_mathzone,
 }, {
   t("\\frac{"),
@@ -260,14 +281,13 @@ table.insert(autosnippets, s({
 
 -- Fracción con expresión: (algo)/ → \frac{algo}{}
 table.insert(autosnippets, s({
-  trig = "([%a%d_^{}\\]+)/",
+  trig = "([^%s/]*[%a\\][^%s/]*)/",
   regTrig = true,
   wordTrig = false,
   name = "Fraction with expression",
   dscr = "expr/ → \\frac{expr}{}",
   condition = in_mathzone,
   show_condition = in_mathzone,
-  priority = 900,
 }, {
   t("\\frac{"),
   f(function(_, snip) return snip.captures[1] end),
