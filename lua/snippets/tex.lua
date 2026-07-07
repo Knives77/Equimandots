@@ -474,8 +474,8 @@ local math_symbols = {
   { "**",   "\\cdot" },
   { "||",   "\\mid" },
   { "ooo",  "\\infty" },
-  { "pm",   "\\pm" },
-  { "mp",   "\\mp" },
+  { "pm.",  "\\pm" },
+  { "mp.",  "\\mp" },
 
   -- Lógica
   { "AA",   "\\forall" },
@@ -496,7 +496,7 @@ local math_symbols = {
 for _, sym in ipairs(math_symbols) do
   table.insert(autosnippets, s({
     trig = sym[1],
-    wordTrig = false,
+    wordTrig = sym[1]:match("^[%a]+$") ~= nil,
     name = sym[2],
     dscr = sym[1] .. " → " .. sym[2],
     condition = in_mathzone,
@@ -509,7 +509,7 @@ end
 -- =============================================
 
 -- lim → \lim_{n \to \infty}
-table.insert(snippets, s({
+table.insert(autosnippets, s({
   trig = "lim",
   name = "Limit",
   dscr = "\\lim_{n \\to \\infty}",
@@ -536,7 +536,7 @@ table.insert(snippets, s({
 }, fmta([[\prod_{<>=<>}^{<>}]], { i(1, "n"), i(2, "1"), i(3, "N") })))
 
 -- int → \int_{a}^{b} ... dx
-table.insert(snippets, s({
+table.insert(autosnippets, s({
   trig = "dint",
   name = "Definite integral",
   dscr = "\\int_{a}^{b} ... dx",
@@ -706,8 +706,8 @@ table.insert(snippets, s({
 -- =============================================
 
 -- lr( → \left( \right)
-table.insert(snippets, s({
-  trig = "lr(",
+table.insert(autosnippets, s({
+  trig = "lr()",
   wordTrig = false,
   name = "left( right)",
   dscr = "\\left( \\right)",
@@ -759,7 +759,7 @@ table.insert(snippets, s({
 -- 12. MATRICES (solo en math)
 -- =============================================
 
-table.insert(snippets, s({
+table.insert(autosnippets, s({
   trig = "pmat",
   name = "pmatrix",
   dscr = "pmatrix environment",
@@ -771,7 +771,7 @@ table.insert(snippets, s({
 \end{pmatrix}
 ]], { i(0) })))
 
-table.insert(snippets, s({
+table.insert(autosnippets, s({
   trig = "bmat",
   name = "bmatrix",
   dscr = "bmatrix environment",
@@ -783,7 +783,7 @@ table.insert(snippets, s({
 \end{bmatrix}
 ]], { i(0) })))
 
-table.insert(snippets, s({
+table.insert(autosnippets, s({
   trig = "vmat",
   name = "vmatrix",
   dscr = "vmatrix (determinant)",
