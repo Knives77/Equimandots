@@ -954,6 +954,50 @@ table.insert(snippets, s({
   i(0),
 })))
 
+table.insert(snippets, s({
+  trig = "book6x9",
+  name = "Book 6x9 template",
+  dscr = "LaTeX book template for a 6x9 in trim size",
+}, fmta([[
+\documentclass[<>]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{lmodern}
+\usepackage[
+  paperwidth=6in,
+  paperheight=9in,
+  margin=0.75in,
+  includeheadfoot
+]{geometry}
+\usepackage{hyperref}
+
+\title{<>}
+\author{<>}
+\date{<>}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+
+<>
+
+\backmatter
+
+\end{document}
+]], {
+  i(1, "12pt,openany"),
+  i(2, "Título del libro"),
+  i(3, "Autor"),
+  i(4, "\\today"),
+  i(0),
+})))
+
 -- =============================================
 -- REGISTRAR SNIPPETS
 -- =============================================

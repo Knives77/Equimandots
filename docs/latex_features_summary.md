@@ -57,6 +57,7 @@ Configuramos una suite masiva de "autosnippets" que se expanden solos, sin neces
 - **Entornos Automáticos**: Escribe `beg` al inicio de una línea para generar `\begin{} ... \end{}`. O atajos como `ali` para `align*`.
 - **Estructura y Formato**: Atajos para negritas (`bf`), cursivas (`it`), secciones (`sec`, `ssec`), `\label` (`lab`), y `\ref` (`ref`).
 - **Plantilla (`template`)**: Genera un documento base completo al instante.
+- **Plantilla de libro 6x9 (`book69`)**: Genera una base `book` con tamaño de página 6x9 pulgadas, márgenes listos para impresión y frontmatter/mainmatter/backmatter.
 
 ## 4. Evaluador de Sympy 
 Si tienes Python y la librería `sympy` instalada, puedes usar el snippet matemático interactivo:

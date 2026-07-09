@@ -55,5 +55,13 @@ return {
       desc = "Corregir error ortográfico anterior",
       buffer = false,
     })
+
+    -- 10. Hacer forward search (o abrir visor) SOLO cuando la compilación termine con éxito
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "VimtexEventCompileSuccess",
+      callback = function()
+        vim.cmd("silent! VimtexView")
+      end,
+    })
   end
 }
