@@ -37,4 +37,15 @@ return {
       },
     },
   },
+  -- Mostrar diagnósticos también en modo Insert
+  {
+    "AstroNvim/astrocore",
+    ---@type AstroCoreOpts
+    opts = {
+      diagnostics = {
+        update_in_insert = true,
+      },
+    },
+  },
 }
+

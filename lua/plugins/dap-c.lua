@@ -2,43 +2,22 @@
 -- Debugger: codelldb (LLDB-based)
 -- Compiler: clang
 
------------------------------------------------------------------------
--- Utilidades
------------------------------------------------------------------------
-
---- Ejecuta un comando de shell y muestra la salida en un split inferior.
---- Presiona q para cerrar el buffer.
----@param cmd string comando a ejecutar
----@param title string título para el buffer de salida
+--- Compila y notifica el resultado. Solo muestra errores si falla.
+---@param cmd string
+---@param title string
 ---@return boolean success
-local function run_and_show(cmd, title)
+---@return string output
+local function compile(cmd, title)
   local output = vim.fn.system(cmd)
   local success = vim.v.shell_error == 0
 
-  vim.cmd "botright 12new"
-  local buf = vim.api.nvim_get_current_buf()
-  vim.bo[buf].buftype = "nofile"
-  vim.bo[buf].bufhidden = "wipe"
-  vim.bo[buf].swapfile = false
-  vim.bo[buf].filetype = "log"
-  vim.api.nvim_buf_set_name(buf, "[" .. title .. "]")
-
-  local lines = {
-    "═══ " .. title .. " ═══",
-    "$ " .. cmd,
-    "",
-  }
-  for _, line in ipairs(vim.split(output, "\n", { trimempty = false })) do
-    table.insert(lines, line)
+  if success then
+    vim.notify("✓ " .. title, vim.log.levels.INFO)
+  else
+    vim.notify("✗ " .. title .. "\n" .. output, vim.log.levels.ERROR)
   end
-  table.insert(lines, "")
-  table.insert(lines, success and "✓ Exitoso (código 0)" or "✗ Error (código " .. vim.v.shell_error .. ")")
 
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  vim.keymap.set("n", "q", "<cmd>bwipeout<cr>", { buffer = buf, silent = true })
-  vim.cmd "wincmd p"
-
-  return success
+  return success, output
 end
 
 ---@type LazySpec
@@ -63,9 +42,6 @@ return {
       local dap = require "dap"
 
       dap.configurations.c = {
-        --
-        -- 1) Archivo individual con clang
-        --
         {
           name = "Compilar y depurar (clang)",
           type = "codelldb",
@@ -79,8 +55,7 @@ return {
               vim.fn.shellescape(file)
             )
 
-            local success = run_and_show(cmd, "Compilación clang")
-            if not success then return nil end
+            if not compile(cmd, "Compilación clang") then return nil end
             return output
           end,
           cwd = "${workspaceFolder}",
@@ -91,10 +66,6 @@ return {
             return vim.split(input, " ", { trimempty = true })
           end,
         },
-
-        --
-        -- 2) Proyectos con Makefile (exercism, etc.)
-        --
         {
           name = "Make y depurar",
           type = "codelldb",
@@ -109,9 +80,7 @@ return {
               return nil
             end
 
-            local cmd = "make -C " .. vim.fn.shellescape(file_dir)
-            local success = run_and_show(cmd, "Make build")
-            if not success then return nil end
+            if not compile("make -C " .. vim.fn.shellescape(file_dir), "Make build") then return nil end
 
             return vim.fn.input("Ejecutable generado: ", file_dir .. "/", "file")
           end,
@@ -123,10 +92,6 @@ return {
             return vim.split(input, " ", { trimempty = true })
           end,
         },
-
-        --
-        -- 3) Depurar ejecutable existente
-        --
         {
           name = "Depurar ejecutable existente",
           type = "codelldb",
@@ -142,10 +107,6 @@ return {
             return vim.split(input, " ", { trimempty = true })
           end,
         },
-
-        --
-        -- 4) Attach a proceso
-        --
         {
           name = "Attach a proceso",
           type = "codelldb",
