@@ -1,5 +1,5 @@
--- DAP (Debug Adapter Protocol) configuration for C/C++
--- Debugger: codelldb (LLDB-based)
+-- DAP (Debug Adapter Protocol) configuration for C/C++ and Bash
+-- Debuggers: codelldb (LLDB-based) for C/C++, bash-debug-adapter for Bash
 -- Compiler: clang
 
 --- Compila y notifica el resultado. Solo muestra errores si falla.
@@ -19,6 +19,21 @@ local function compile(cmd, title)
 
   return success, output
 end
+
+--- Opciones comunes de bashdb para no repetirlas en cada configuración
+local mason_data = vim.fn.stdpath "data" .. "/mason"
+local bashdb_common = {
+  type = "bashdb",
+  request = "launch",
+  pathBashdb = mason_data .. "/packages/bash-debug-adapter/extension/bashdb_dir/bashdb",
+  pathBashdbLib = mason_data .. "/packages/bash-debug-adapter/extension/bashdb_dir",
+  pathBash = "bash",
+  pathCat = "cat",
+  pathMkfifo = "mkfifo",
+  pathPkill = "pkill",
+  env = {},
+  terminalKind = "integrated",
+}
 
 ---@type LazySpec
 return {
@@ -41,6 +56,9 @@ return {
     config = function()
       local dap = require "dap"
 
+      -- ══════════════════════════════════════════
+      -- C/C++ configurations (codelldb)
+      -- ══════════════════════════════════════════
       dap.configurations.c = {
         {
           name = "Compilar y depurar (clang)",
@@ -117,6 +135,53 @@ return {
       }
 
       dap.configurations.cpp = dap.configurations.c
+
+      -- ══════════════════════════════════════════
+      -- Bash configurations (bash-debug-adapter)
+      -- ══════════════════════════════════════════
+      dap.adapters.bashdb = {
+        type = "executable",
+        command = mason_data .. "/bin/bash-debug-adapter",
+      }
+
+      dap.configurations.sh = {
+        -- 1) Script sin argumentos: lanza directo, sin preguntar nada
+        vim.tbl_extend("force", bashdb_common, {
+          name = "Depurar script (sin argumentos)",
+          program = "${file}",
+          cwd = "${fileDirname}",
+          args = {},
+        }),
+
+        -- 2) Script con argumentos: pregunta por $@
+        vim.tbl_extend("force", bashdb_common, {
+          name = "Depurar script (con argumentos)",
+          program = "${file}",
+          cwd = "${fileDirname}",
+          args = function()
+            local input = vim.fn.input "Argumentos: "
+            if input == "" then return {} end
+            return vim.split(input, " ", { trimempty = true })
+          end,
+        }),
+
+        -- 3) Elegir archivo + argumentos
+        vim.tbl_extend("force", bashdb_common, {
+          name = "Depurar script (elegir archivo)",
+          program = function()
+            return vim.fn.input("Ruta al script: ", vim.fn.getcwd() .. "/", "file")
+          end,
+          cwd = "${workspaceFolder}",
+          args = function()
+            local input = vim.fn.input "Argumentos: "
+            if input == "" then return {} end
+            return vim.split(input, " ", { trimempty = true })
+          end,
+        }),
+      }
+
+      dap.configurations.bash = dap.configurations.sh
     end,
   },
 }
+

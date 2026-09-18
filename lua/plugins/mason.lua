@@ -12,6 +12,7 @@ return {
         -- install language servers
         "lua-language-server",
         "clangd",
+        "sqls",
 
         -- install formatters
         "stylua",
@@ -20,6 +21,10 @@ return {
         -- install debuggers
         "debugpy",
         "codelldb",
+        "bash-debug-adapter",
+
+        -- install formatters for shell
+        "shfmt",
 
         -- install any other package
         "tree-sitter-cli",

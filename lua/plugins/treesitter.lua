@@ -22,6 +22,8 @@ return {
         "lua",
         "vim",
         "c",
+        "markdown",
+        "markdown_inline",
         -- add more arguments for adding more treesitter parsers
       },
     },
