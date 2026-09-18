@@ -99,9 +99,41 @@ return {
 
       -- ── Prompt para elegir BD y conectar ──
       local function prompt_connect()
-        local dbname = vim.fn.input "Base de datos: "
-        if dbname == "" then return end
-        connect_postgresql(dbname)
+        -- Intentar obtener la lista de bases de datos usando psql
+        local get_dbs_cmd = {
+          "psql", "-h", "localhost", "-p", "5432", "-U", "homura", "-d", "postgres",
+          "-t", "-c", "SELECT datname FROM pg_database WHERE datistemplate = false;"
+        }
+
+        local result = vim.fn.systemlist(get_dbs_cmd)
+
+        if vim.v.shell_error == 0 and #result > 0 then
+          local dbs = {}
+          for _, db in ipairs(result) do
+            local clean_db = vim.trim(db)
+            if clean_db ~= "" then
+              table.insert(dbs, clean_db)
+            end
+          end
+
+          if #dbs > 0 then
+            table.insert(dbs, 1, "✏️  Escribir manualmente...")
+            vim.ui.select(dbs, { prompt = "Selecciona una Base de Datos:" }, function(choice)
+              if not choice then return end
+              if choice == "✏️  Escribir manualmente..." then
+                local dbname = vim.fn.input "Base de datos: "
+                if dbname ~= "" then connect_postgresql(dbname) end
+              else
+                connect_postgresql(choice)
+              end
+            end)
+            return
+          end
+        end
+
+        -- Fallback si psql falla (ej. VM apagada o sin conexión)
+        local dbname = vim.fn.input "Base de datos (Ingreso manual): "
+        if dbname ~= "" then connect_postgresql(dbname) end
       end
 
       -- ── Autocmd para cerrar el resultado con 'Q' ──
